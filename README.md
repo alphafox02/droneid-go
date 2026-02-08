@@ -41,17 +41,35 @@ sudo dnf install libpcap zeromq
 
 ## Installation
 
-For WarDragon systems, use the install script:
+### WarDragon Kits
+
+Clone directly into the WarDragon directory:
 
 ```bash
+cd /home/dragon/WarDragon
+git clone https://github.com/alphafox02/droneid-go.git
+cd droneid-go
 sudo ./install.sh
 ```
 
-This will:
+Or if cloned elsewhere, the installer will copy files to the correct location:
+
+```bash
+git clone https://github.com/alphafox02/droneid-go.git
+cd droneid-go
+sudo ./install.sh
+```
+
+The installer will:
+- Detect if this is a WarDragon kit (x86_64 with DragonSync)
 - Copy files to `/home/dragon/WarDragon/droneid-go/`
 - Stop and disable the old `wifi-receiver` service (if running)
 - Install and enable the `zmq-decoder` systemd service
 - Start the service
+
+### Non-WarDragon Systems
+
+On non-WarDragon systems, the installer will display manual setup instructions. See the output for details.
 
 ## Usage
 
