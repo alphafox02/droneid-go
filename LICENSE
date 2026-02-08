@@ -1,0 +1,32 @@
+CEMAXECUTER LLC SOFTWARE LICENSE
+
+Copyright (c) 2024-2026 CEMAXECUTER LLC. All Rights Reserved.
+
+This software is provided for personal and non-commercial use. The source
+code is not currently available.
+
+You MAY:
+- Use the software for personal, educational, or research purposes
+- Use the software with DragonSync and WarDragon platforms
+
+You may NOT:
+- Redistribute the software without permission
+- Reverse engineer or decompile the binary
+- Use the software for commercial purposes without a license
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+CEMAXECUTER LLC BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+THIRD-PARTY COMPONENTS
+
+The sniffle/ subdirectory is licensed under GPL-3.0 and is governed by its
+own license terms. See sniffle/LICENSE for details.
+
+For licensing inquiries, contact CEMAXECUTER LLC.

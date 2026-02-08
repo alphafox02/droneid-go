@@ -1,0 +1,32 @@
+# Binaries (in root - ignore local builds)
+/droneid
+/droneid-*
+*.exe
+build/
+release/
+*.tar.gz
+
+# But include pre-built binaries in bin/
+!bin/
+!bin/*
+
+# Go
+go.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test coverage
+coverage.out
+coverage.html
