@@ -7,6 +7,7 @@ set -e
 INSTALL_DIR="/home/dragon/WarDragon/droneid-go"
 SERVICE_NAME="zmq-decoder"
 OLD_SERVICE="wifi-receiver"
+OLD_BLE_SERVICE="sniff-receiver"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors for output
@@ -124,6 +125,17 @@ fi
 if systemctl is-enabled --quiet "$OLD_SERVICE" 2>/dev/null; then
     info "Disabling $OLD_SERVICE service..."
     systemctl disable "$OLD_SERVICE"
+fi
+
+# Stop old sniff-receiver service if running (replaced by native -ble auto)
+if systemctl is-active --quiet "$OLD_BLE_SERVICE" 2>/dev/null; then
+    info "Stopping $OLD_BLE_SERVICE service (replaced by native BLE support)..."
+    systemctl stop "$OLD_BLE_SERVICE"
+fi
+
+if systemctl is-enabled --quiet "$OLD_BLE_SERVICE" 2>/dev/null; then
+    info "Disabling $OLD_BLE_SERVICE service..."
+    systemctl disable "$OLD_BLE_SERVICE"
 fi
 
 # Stop existing zmq-decoder if running
