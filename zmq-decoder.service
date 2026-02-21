@@ -8,7 +8,7 @@ Type=simple
 User=root
 Group=root
 WorkingDirectory=/home/dragon/WarDragon/droneid-go
-ExecStart=/home/dragon/WarDragon/droneid-go/droneid -g -ble auto -uart /dev/esp0 -dji 127.0.0.1:4221 -z -zmqsetting 0.0.0.0:4224
+ExecStart=/home/dragon/WarDragon/droneid-go/droneid -g -uart /dev/esp0 -dji 127.0.0.1:4221 -zmqclients 127.0.0.1:4222 -z -zmqsetting 0.0.0.0:4224
 Restart=on-failure
 RestartSec=5
 
