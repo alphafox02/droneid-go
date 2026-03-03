@@ -139,11 +139,6 @@ if [ "$SCRIPT_DIR" != "$INSTALL_DIR" ]; then
     cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/" 2>/dev/null || true
     cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/" 2>/dev/null || true
 
-    # Copy sniffle if present (needed for legacy mode)
-    if [ -d "$SCRIPT_DIR/sniffle" ]; then
-        info "Copying sniffle directory..."
-        cp -r "$SCRIPT_DIR/sniffle" "$INSTALL_DIR/"
-    fi
 fi
 
 # Stop old wifi-receiver service if running (replaced in both modes)

@@ -1,4 +1,0 @@
-pyserial
-zmq
-numpy
-scipy
