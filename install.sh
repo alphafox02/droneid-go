@@ -164,7 +164,7 @@ if [ "$LEGACY_MODE" = true ]; then
         fi
     else
         warn "$OLD_BLE_SERVICE service not found - BLE capture may not work"
-        warn "Ensure sniffle/sniff_receiver.py is running on port 4222"
+        warn "Ensure /home/dragon/WarDragon/DroneID/sniffle/python_cli/sniff_receiver.py is running on port 4222"
     fi
 else
     # Default mode: stop/disable sniff-receiver (replaced by native -ble auto)
