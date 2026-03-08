@@ -47,14 +47,14 @@ if [ "$EUID" -ne 0 ]; then
     error "Please run as root (sudo ./install.sh)"
 fi
 
-# Detect architecture - only x86_64 supported for now
+# Detect architecture
 ARCH=$(uname -m)
 case "$ARCH" in
     x86_64)
         BINARY_NAME="droneid-linux-x86_64"
         ;;
-    aarch64|arm64|armv7l)
-        error "ARM architecture not yet supported. x86_64 only for now."
+    aarch64|arm64)
+        BINARY_NAME="droneid-linux-arm64"
         ;;
     *)
         error "Unsupported architecture: $ARCH"
