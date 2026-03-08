@@ -142,28 +142,10 @@ fi
 
 info "Installing droneid-go..."
 
-# Create install directory if needed
-info "Creating install directory: $INSTALL_DIR"
-mkdir -p "$INSTALL_DIR"
-
-# Copy binary (always copy to ensure latest version)
-info "Installing binary to $INSTALL_DIR/droneid"
-cp "$BINARY_PATH" "$INSTALL_DIR/droneid"
-chmod +x "$INSTALL_DIR/droneid"
-
-# Copy and patch support files, substituting the actual home path
-if [ "$SCRIPT_DIR" != "$INSTALL_DIR" ]; then
-    info "Copying support files to $INSTALL_DIR"
-    # Patch service file: replace /home/dragon with actual home path
-    sed "s|/home/dragon|$WARDRAGON_HOME|g" "$SCRIPT_DIR/$SERVICE_FILE" \
-        > "$INSTALL_DIR/zmq-decoder.service"
-    cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/" 2>/dev/null || true
-    cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/" 2>/dev/null || true
-else
-    # Running from install dir — patch in place if needed
-    if [ "$WARDRAGON_HOME" != "/home/dragon" ]; then
-        sed -i "s|/home/dragon|$WARDRAGON_HOME|g" "$INSTALL_DIR/zmq-decoder.service"
-    fi
+# Stop zmq-decoder FIRST so the binary is not locked when we replace it
+if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
+    info "Stopping $SERVICE_NAME service..."
+    systemctl stop "$SERVICE_NAME"
 fi
 
 # Stop old wifi-receiver service if running (replaced in both modes)
@@ -204,10 +186,29 @@ else
     fi
 fi
 
-# Stop existing zmq-decoder if running
-if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
-    info "Stopping existing $SERVICE_NAME service..."
-    systemctl stop "$SERVICE_NAME"
+# Create install directory if needed
+info "Creating install directory: $INSTALL_DIR"
+mkdir -p "$INSTALL_DIR"
+
+# Install binary via temp file + rename to avoid 'Text file busy' errors
+info "Installing binary to $INSTALL_DIR/droneid"
+cp "$BINARY_PATH" "$INSTALL_DIR/droneid.new"
+chmod +x "$INSTALL_DIR/droneid.new"
+mv "$INSTALL_DIR/droneid.new" "$INSTALL_DIR/droneid"
+
+# Copy and patch support files, substituting the actual home path
+if [ "$SCRIPT_DIR" != "$INSTALL_DIR" ]; then
+    info "Copying support files to $INSTALL_DIR"
+    # Patch service file: replace /home/dragon with actual home path
+    sed "s|/home/dragon|$WARDRAGON_HOME|g" "$SCRIPT_DIR/$SERVICE_FILE" \
+        > "$INSTALL_DIR/zmq-decoder.service"
+    cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/" 2>/dev/null || true
+    cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/" 2>/dev/null || true
+else
+    # Running from install dir — patch in place if needed
+    if [ "$WARDRAGON_HOME" != "/home/dragon" ]; then
+        sed -i "s|/home/dragon|$WARDRAGON_HOME|g" "$INSTALL_DIR/zmq-decoder.service"
+    fi
 fi
 
 # Install systemd service (always installs as zmq-decoder.service)
