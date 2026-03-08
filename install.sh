@@ -1,11 +1,16 @@
 #!/bin/bash
 # droneid-go installer
-# Auto-installs on WarDragon x86_64 kits, manual mode for other systems
+# Auto-installs on WarDragon kits (x86_64 or arm64), manual mode for other systems
 # Usage: sudo ./install.sh [--legacy]
 
 set -e
 
-INSTALL_DIR="/home/dragon/WarDragon/droneid-go"
+# ── Change this if your username is not 'dragon' ──────────────────────────────
+WARDRAGON_USER="dragon"
+# ──────────────────────────────────────────────────────────────────────────────
+
+WARDRAGON_HOME="/home/$WARDRAGON_USER"
+INSTALL_DIR="$WARDRAGON_HOME/WarDragon/droneid-go"
 SERVICE_NAME="zmq-decoder"
 OLD_SERVICE="wifi-receiver"
 OLD_BLE_SERVICE="sniff-receiver"
@@ -85,12 +90,11 @@ fi
 
 info "Using binary: $BINARY_PATH"
 
-# Detect if this is a WarDragon kit
-# Requirements: x86_64, /home/dragon/WarDragon exists, and DragonSync present
+# Detect if this is a WarDragon kit (x86_64 or arm64)
 IS_WARDRAGON_KIT=false
-if [ "$ARCH" = "x86_64" ] && [ -d "/home/dragon/WarDragon" ]; then
+if [ -d "$WARDRAGON_HOME/WarDragon" ]; then
     # Check for DragonSync (directory or service)
-    if [ -d "/home/dragon/WarDragon/DragonSync" ] || \
+    if [ -d "$WARDRAGON_HOME/WarDragon/DragonSync" ] || \
        systemctl list-unit-files | grep -q "dragonsync" 2>/dev/null; then
         IS_WARDRAGON_KIT=true
     fi
@@ -99,7 +103,7 @@ fi
 if [ "$IS_WARDRAGON_KIT" = true ]; then
     info "WarDragon kit detected - performing full auto-install"
 else
-    warn "WarDragon x86_64 kit not detected"
+    warn "WarDragon kit not detected"
     warn "Auto-install is only supported on WarDragon kits"
     echo ""
     echo "For manual installation:"
@@ -132,13 +136,19 @@ info "Installing binary to $INSTALL_DIR/droneid"
 cp "$BINARY_PATH" "$INSTALL_DIR/droneid"
 chmod +x "$INSTALL_DIR/droneid"
 
-# Copy other files if not already in install dir
+# Copy and patch support files, substituting the actual home path
 if [ "$SCRIPT_DIR" != "$INSTALL_DIR" ]; then
     info "Copying support files to $INSTALL_DIR"
-    cp "$SCRIPT_DIR/$SERVICE_FILE" "$INSTALL_DIR/zmq-decoder.service"
+    # Patch service file: replace /home/dragon with actual home path
+    sed "s|/home/dragon|$WARDRAGON_HOME|g" "$SCRIPT_DIR/$SERVICE_FILE" \
+        > "$INSTALL_DIR/zmq-decoder.service"
     cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/" 2>/dev/null || true
     cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/" 2>/dev/null || true
-
+else
+    # Running from install dir — patch in place if needed
+    if [ "$WARDRAGON_HOME" != "/home/dragon" ]; then
+        sed -i "s|/home/dragon|$WARDRAGON_HOME|g" "$INSTALL_DIR/zmq-decoder.service"
+    fi
 fi
 
 # Stop old wifi-receiver service if running (replaced in both modes)
@@ -164,7 +174,7 @@ if [ "$LEGACY_MODE" = true ]; then
         fi
     else
         warn "$OLD_BLE_SERVICE service not found - BLE capture may not work"
-        warn "Ensure /home/dragon/WarDragon/DroneID/sniffle/python_cli/sniff_receiver.py is running on port 4222"
+        warn "Ensure $WARDRAGON_HOME/WarDragon/DroneID/sniffle/python_cli/sniff_receiver.py is running on port 4222"
     fi
 else
     # Default mode: stop/disable sniff-receiver (replaced by native -ble auto)
