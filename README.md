@@ -14,7 +14,7 @@ droneid-go is a unified detection receiver that replaces multiple Python-based s
 - **Pcap file analysis** - Offline processing of captured traffic
 - **ZMQ pub/sub** - Single unified output for DragonSync on port 4224
 
-> **v0.3.0 coming soon** - Native BLE support (`-ble auto`) eliminates the need for the external Python sniffle process. The current public binary (v0.2.0) still uses the legacy sniffle pipeline. Updated binaries will be available with the next WarDragon kit release.
+> **v0.3.0** - Native BLE support (`-ble auto`) eliminates the need for the external Python sniffle process.
 
 ## What It Replaces
 
@@ -37,9 +37,11 @@ Thanks to [@bkerler](https://github.com/bkerler) for the ZMQ-enabled Sniffle for
 
 ## Prerequisites
 
-- Linux (x86_64)
+- Linux x86_64 (Ubuntu 22.04+) or ARM64 (Ubuntu 24.04, e.g. Raspberry Pi)
 - WiFi adapter capable of monitor mode (for WiFi capture)
 - Sniffle-compatible BLE dongle (for BLE capture) - nRF52840 or Sonoff CC2652P
+
+> **Note:** The `droneid-linux-arm64` binary is built against libzmq 4.3.5 (Ubuntu 24.04). It requires `libzmq5 >= 4.3.5` at runtime.
 
 ### System Dependencies
 
