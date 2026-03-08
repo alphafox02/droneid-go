@@ -125,6 +125,21 @@ if [ ! -f "$SCRIPT_DIR/$SERVICE_FILE" ]; then
     error "Service file '$SERVICE_FILE' not found in $SCRIPT_DIR"
 fi
 
+# Install required system dependencies
+info "Checking system dependencies..."
+MISSING_PKGS=""
+for pkg in iproute2 iw libpcap0.8 libzmq5; do
+    if ! dpkg -s "$pkg" &>/dev/null; then
+        MISSING_PKGS="$MISSING_PKGS $pkg"
+    fi
+done
+if [ -n "$MISSING_PKGS" ]; then
+    info "Installing missing packages:$MISSING_PKGS"
+    apt-get install -y -q $MISSING_PKGS || warn "Some packages failed to install - WiFi capture may not work"
+else
+    info "All dependencies present"
+fi
+
 info "Installing droneid-go..."
 
 # Create install directory if needed
