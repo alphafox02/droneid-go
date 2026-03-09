@@ -30,10 +30,11 @@ DragonSync now subscribes to a single port (4224) instead of multiple Python ser
 
 droneid-go is not open source at this time. See LICENSE file for details.
 
-### Sniffle
+### Sniffle Firmware
 
-The included `sniffle/` subdirectory is licensed under GPL-3.0 - see `sniffle/LICENSE` for details.
-Thanks to [@bkerler](https://github.com/bkerler) for the ZMQ-enabled Sniffle fork.
+Native BLE support requires a Sniffle-compatible dongle (nRF52840 or Sonoff CC2652P) pre-flashed with Sniffle firmware. droneid-go communicates with the dongle directly over serial — no Python sniffle process required.
+
+Sniffle is licensed under GPL-3.0. See the [Sniffle repository](https://github.com/bkerler/sniffle) for firmware source and flashing instructions. Thanks to [@bkerler](https://github.com/bkerler) for the ZMQ-enabled fork.
 
 ## Prerequisites
 
