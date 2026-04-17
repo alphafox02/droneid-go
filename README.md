@@ -9,7 +9,7 @@ droneid-go is a unified detection receiver that replaces multiple Python-based s
 - **ASTM F3411-19 and F3411-22a** - Full Remote ID specification compliance
 - **WiFi Remote ID** - Direct monitor mode capture on 2.4/5 GHz (replaces `wifi-receiver`)
 - **Native BLE Remote ID** - Built-in Sniffle dongle support for Bluetooth 5 Long Range (replaces `sniff-receiver`)
-- **DJI DroneID** - ZMQ input from AntSDR-based DJI receiver
+- **DJI DroneID** - ZMQ input from DragonSDR-based DJI receiver
 - **UART/ESP32 passthrough** - Direct serial connection to ESP32 devices
 - **Pcap file analysis** - Offline processing of captured traffic
 - **ZMQ pub/sub** - Single unified output for DragonSync on port 4224
@@ -90,7 +90,7 @@ This enables:
 - WiFi capture with 5 GHz hopping (`-g`)
 - Native BLE via auto-detected Sniffle dongle (`-ble auto`)
 - ESP32 UART passthrough (`-uart /dev/esp0`)
-- DJI DroneID from AntSDR (`-dji 127.0.0.1:4221`)
+- DJI DroneID from DragonSDR (`-dji 127.0.0.1:4221`)
 - ZMQ output on port 4224 for DragonSync (`-z -zmqsetting`)
 
 Missing hardware is handled gracefully - the binary retries connections and continues with whatever is available.
@@ -167,7 +167,7 @@ python3 sniff_receiver.py -l -e -z
 
 | Port | Service | Description |
 |------|---------|-------------|
-| 4221 | dji_receiver.py | DJI DroneID from AntSDR E200 |
+| 4221 | dji_receiver.py | DJI DroneID from DragonSDR E200 |
 | 4224 | droneid-go | Unified output (WiFi + BLE + UART + DJI) |
 | 4225 | WarDragon Monitor | GPS and system status |
 | 4222 | ~~sniff-receiver~~ | Deprecated - replaced by `-ble auto` |
