@@ -1,6 +1,7 @@
 # Binaries (in root - ignore local builds)
 /droneid
 /droneid-*
+!/droneid-check.sh
 *.exe
 build/
 release/
