@@ -12,7 +12,7 @@ droneid-go is a unified detection receiver that replaces multiple Python-based s
 - **DJI DroneID** - ZMQ input from DragonSDR-based DJI receiver
 - **UART/ESP32 passthrough** - Direct serial connection to ESP32 devices
 - **Pcap file analysis** - Offline processing of captured traffic
-- **ZMQ pub/sub** - Single unified output for DragonSync on port 4224
+- **ZMQ pub/sub** - Unified drone output for DragonSync on port 4224, plus optional health publish on port 4227 for the WarDragon Console / monitoring tools
 
 > **v0.3.0** - Native BLE support (`-ble auto`) eliminates the need for the external Python sniffle process.
 
@@ -83,7 +83,7 @@ On non-WarDragon systems, the installer will display manual setup instructions.
 ### Typical WarDragon deployment (all inputs)
 
 ```bash
-sudo ./droneid -g -ble auto -uart /dev/esp0 -dji 127.0.0.1:4221 -z -zmqsetting 0.0.0.0:4224
+sudo ./droneid -g -ble auto -uart /dev/esp0 -dji 127.0.0.1:4221 -z -zmqsetting 0.0.0.0:4224 -health-zmq 0.0.0.0:4227
 ```
 
 This enables:
@@ -91,7 +91,8 @@ This enables:
 - Native BLE via auto-detected Sniffle dongle (`-ble auto`)
 - ESP32 UART passthrough (`-uart /dev/esp0`)
 - DJI DroneID from DragonSDR (`-dji 127.0.0.1:4221`)
-- ZMQ output on port 4224 for DragonSync (`-z -zmqsetting`)
+- ZMQ drone output on port 4224 for DragonSync (`-z -zmqsetting`)
+- ZMQ health output on port 4227 for the WarDragon Console (`-health-zmq`)
 
 Missing hardware is handled gracefully - the binary retries connections and continues with whatever is available.
 
@@ -153,7 +154,9 @@ python3 sniff_receiver.py -l -e -z
 | `-hop-cycle` | Dwell time per channel (seconds) | 3,1 |
 | `-no-hop` | Disable hopping when -g is set | false |
 | `-ble` | BLE Sniffle dongle (`auto` or device path) | (none) |
-| `-z` | Enable ZMQ publisher | false |
+| `-z` | Enable ZMQ drone publisher | false |
+| `-health-zmq` | Health ZMQ publisher bind address (e.g. `0.0.0.0:4227`); empty disables | (none) |
+| `-health-zmq-interval` | Health publish interval in seconds | 30 |
 | `-v` | Verbose output | false |
 | `-zmqsetting` | ZMQ publisher bind address | 127.0.0.1:4224 |
 | `-zmqclients` | ZMQ subscriber endpoints (legacy) | (none) |
@@ -168,8 +171,9 @@ python3 sniff_receiver.py -l -e -z
 | Port | Service | Description |
 |------|---------|-------------|
 | 4221 | dji_receiver.py | DJI DroneID from DragonSDR E200 |
-| 4224 | droneid-go | Unified output (WiFi + BLE + UART + DJI) |
+| 4224 | droneid-go | Unified drone output (WiFi + BLE + UART + DJI) |
 | 4225 | WarDragon Monitor | GPS and system status |
+| 4227 | droneid-go health | Periodic `{"Health":...}` JSON for the WarDragon Console |
 | 4222 | ~~sniff-receiver~~ | Deprecated - replaced by `-ble auto` |
 | 4223 | ~~wifi-receiver~~ | Deprecated - replaced by built-in WiFi |
 
