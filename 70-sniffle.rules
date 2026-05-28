@@ -1,0 +1,10 @@
+# WarDragon — stable symlink for TI XDS110-based Sniffle dongles.
+# Runs after 60-serial.rules so the usb_id ID_* properties are set.
+# Matches the Sniffle data UART (TI XDS110 0451:bef3, USB interface 00),
+# NOT interface 03 (CMSIS-DAP debug) and NOT the u-blox GPS (vendor 1546).
+#
+# Creates /dev/sniffle-ti0 (NOT /dev/sniffle0). /dev/sniffle0 is left for the
+# legacy/Sonoff convention so TI and legacy kits never collide. droneid-go
+# checks both /dev/sniffle0 and /dev/sniffle-ti0 (then falls back to probing),
+# and resolves the symlink to pick the correct baud (ttyACM = 2M).
+SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="0451", ENV{ID_MODEL_ID}=="bef3", ENV{ID_USB_INTERFACE_NUM}=="00", SYMLINK+="sniffle-ti0"

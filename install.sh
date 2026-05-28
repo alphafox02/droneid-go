@@ -211,6 +211,17 @@ else
     fi
 fi
 
+# Install udev rule for stable TI XDS110 Sniffle dongle naming.
+# Creates /dev/sniffle-ti0 for TI dongles (VID:PID 0451:bef3, interface 00).
+# Safe to reload/trigger here: the service is already stopped, so nothing holds
+# the device. droneid-go also falls back to probing if the symlink is absent.
+if [ -f "$SCRIPT_DIR/70-sniffle.rules" ]; then
+    info "Installing udev rule for TI Sniffle dongle (/dev/sniffle-ti0)..."
+    cp "$SCRIPT_DIR/70-sniffle.rules" /etc/udev/rules.d/70-sniffle.rules
+    udevadm control --reload-rules 2>/dev/null || true
+    udevadm trigger --subsystem-match=tty 2>/dev/null || true
+fi
+
 # Install systemd service (always installs as zmq-decoder.service)
 info "Installing systemd service..."
 cp "$INSTALL_DIR/zmq-decoder.service" /etc/systemd/system/
