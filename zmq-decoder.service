@@ -11,6 +11,7 @@ WorkingDirectory=/home/dragon/WarDragon/droneid-go
 ExecStart=/home/dragon/WarDragon/droneid-go/droneid -g -ble auto -uart /dev/esp0 -dji 127.0.0.1:4221 -z -zmqsetting 0.0.0.0:4224 -health-zmq 0.0.0.0:4227
 Restart=on-failure
 RestartSec=5
+TimeoutStopSec=15
 
 # Logging
 StandardOutput=journal
