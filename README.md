@@ -14,6 +14,8 @@ droneid-go is a unified detection receiver that replaces multiple Python-based s
 - **Pcap file analysis** - Offline processing of captured traffic
 - **ZMQ pub/sub** - Unified drone output for DragonSync on port 4224, plus optional health publish on port 4227 for the WarDragon Console / monitoring tools
 
+> **v0.3.1** - WiFi survey mode (`-survey`): periodically sweeps the 2.4 GHz band for Remote ID on non-standard channels and hot-adds any channel where RID is decoded into the hop rotation (removed again after 5 minutes without RID). Also fixes the default hop list: channel 146 (a wide-channel center, not tunable by any adapter) replaced with 144.
+>
 > **v0.3.0** - Native BLE support (`-ble auto`) eliminates the need for the external Python sniffle process.
 
 ## What It Replaces
@@ -150,9 +152,12 @@ python3 sniff_receiver.py -l -e -z
 | `-channel` | Initial WiFi channel | 6 |
 | `-g` | Use 5 GHz channel 149, enables hopping | false |
 | `-hop` | Enable channel hopping | false |
-| `-hop-channels` | Channels to hop between | 6,149 |
-| `-hop-cycle` | Dwell time per channel (seconds) | 3,1 |
+| `-hop-channels` | Channels to hop between | 6,116,144,149,153,165 |
+| `-hop-cycle` | Dwell time per channel (seconds) | 2,1,1,1,1,1 |
 | `-no-hop` | Disable hopping when -g is set | false |
+| `-survey` | Periodic 2.4 GHz sweep for off-rotation RID; hot-adds hits to the rotation (implies `-hop`) | false |
+| `-survey-interval` | Seconds between survey sweeps | 180 |
+| `-survey-channels` | Channels to survey (in-rotation channels skipped) | 1-13 |
 | `-ble` | BLE Sniffle dongle (`auto` or device path) | (none) |
 | `-z` | Enable ZMQ drone publisher | false |
 | `-health-zmq` | Health ZMQ publisher bind address (e.g. `0.0.0.0:4227`); empty disables | (none) |
