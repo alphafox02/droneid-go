@@ -1,0 +1,4 @@
+# Pre-built binaries go here:
+# - droneid-linux-x86_64
+# - droneid-linux-arm64
+# - droneid-linux-armv7 (optional)
