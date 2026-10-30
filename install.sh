@@ -142,10 +142,17 @@ fi
 
 info "Installing droneid-go..."
 
-# Stop zmq-decoder FIRST so the binary is not locked when we replace it
+# Note whether the capture service is already running, but do NOT stop it to
+# swap the binary. Replacing the file with mv (below) is atomic — the running
+# process keeps the old binary until it next restarts — so there's no need to
+# stop it. Stopping/restarting on a live kit flips the WiFi adapter out of and
+# back into monitor mode on a warm device, and some USB WiFi drivers can fault
+# when the radio is reconfigured that way. A clean reboot re-initializes the
+# adapter safely, so if it's already running we stage the new version and ask
+# for a reboot instead of restarting in place.
+WAS_ACTIVE=false
 if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
-    info "Stopping $SERVICE_NAME service..."
-    systemctl stop "$SERVICE_NAME"
+    WAS_ACTIVE=true
 fi
 
 # Stop old wifi-receiver service if running (replaced in both modes)
@@ -213,13 +220,16 @@ fi
 
 # Install udev rule for stable TI XDS110 Sniffle dongle naming.
 # Creates /dev/sniffle-ti0 for TI dongles (VID:PID 0451:bef3, interface 00).
-# Safe to reload/trigger here: the service is already stopped, so nothing holds
-# the device. droneid-go also falls back to probing if the symlink is absent.
+# Reloading the rules is always safe. Only re-trigger TTY uevents when the
+# service isn't running — a live droneid-go holds the serial dongles open, and
+# droneid-go falls back to probing if the symlink is absent anyway.
 if [ -f "$SCRIPT_DIR/70-sniffle.rules" ]; then
     info "Installing udev rule for TI Sniffle dongle (/dev/sniffle-ti0)..."
     cp "$SCRIPT_DIR/70-sniffle.rules" /etc/udev/rules.d/70-sniffle.rules
     udevadm control --reload-rules 2>/dev/null || true
-    udevadm trigger --subsystem-match=tty 2>/dev/null || true
+    if [ "$WAS_ACTIVE" != true ]; then
+        udevadm trigger --subsystem-match=tty 2>/dev/null || true
+    fi
 fi
 
 # Install systemd service (always installs as zmq-decoder.service)
@@ -230,23 +240,38 @@ cp "$INSTALL_DIR/zmq-decoder.service" /etc/systemd/system/
 info "Reloading systemd..."
 systemctl daemon-reload
 
-# Enable and start service
+# Enable the service so it starts on boot (it always has).
 info "Enabling $SERVICE_NAME service..."
 systemctl enable "$SERVICE_NAME"
 
-info "Starting $SERVICE_NAME service..."
-systemctl start "$SERVICE_NAME"
+if [ "$WAS_ACTIVE" = true ]; then
+    # Apply the update in place, with NO radio reconfigure and no reboot. The
+    # crash risk is the capture adapter being flipped monitor->managed->monitor
+    # on a warm device. A graceful stop lets the OLD binary flip it back to
+    # managed on the way out, so we SIGKILL it instead: the card is simply left
+    # in monitor. The new binary then sees it is already in monitor and skips the
+    # down/set-type/up reconfigure entirely (idempotent setup).
+    info "Applying update in place (no radio reconfigure)..."
+    systemctl kill -s KILL "$SERVICE_NAME" 2>/dev/null || true
+    sleep 2
+    # Start covers the case where the unit's Restart= policy did not already
+    # relaunch it; it is a no-op if the new binary is already back up.
+    systemctl start "$SERVICE_NAME" 2>/dev/null || true
+else
+    info "Starting $SERVICE_NAME service..."
+    systemctl start "$SERVICE_NAME"
+fi
 
 # Check status
 sleep 1
 if systemctl is-active --quiet "$SERVICE_NAME"; then
-    info "Service started successfully!"
+    info "Service is running on the new version."
     echo ""
     echo "Status:"
     systemctl status "$SERVICE_NAME" --no-pager -l | head -15
 else
-    warn "Service may not have started correctly. Check with:"
-    echo "  sudo journalctl -u $SERVICE_NAME -f"
+    warn "Service did not come back up. Check with:"
+    echo "  sudo journalctl -u $SERVICE_NAME -n 50"
 fi
 
 echo ""
